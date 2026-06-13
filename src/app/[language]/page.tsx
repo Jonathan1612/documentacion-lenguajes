@@ -17,15 +17,129 @@ const languageInfo: Record<string, { name: string; icon: string; color: string }
   html: { name: 'HTML', icon: '📄', color: 'text-html' },
 };
 
+// Orden pedagógico de los temas
+const topicOrder: Record<string, Record<string, string[]>> = {
+  java: {
+    basico: [
+      'introduccion',
+      'variables',
+      'operadores',
+      'control-flujo',
+      'funciones',
+      'arrays',
+      'strings',
+      'poo-clases',
+      'excepciones',
+      'errores-debugging',
+      'entrada-salida',
+    ],
+    intermedio: [
+      'herencia',
+      'polimorfismo',
+      'interfaces',
+      'clases-abstractas',
+      'anotaciones',
+      'collections',
+      'streams',
+      'genericos',
+      'lambdas',
+      'enums',
+      'excepciones-avanzadas',
+      'archivos',
+      'fechas',
+    ],
+    avanzado: [
+      'threads',
+      'concurrencia',
+      'optional',
+      'records',
+      'sealed-classes',
+      'pattern-matching',
+      'reflection',
+      'modulos',
+    ],
+  },
+  python: {
+    basico: [
+      'introduccion',
+      'variables',
+      'operadores',
+      'control-flujo',
+      'funciones',
+      'listas-tuplas',
+      'diccionarios',
+      'strings',
+      'sets',
+      'errores-debugging',
+    ],
+    intermedio: [
+      'archivos',
+      'modulos',
+      'clases',
+      'herencia',
+      'metodos-especiales',
+      'iteradores-generadores',
+      'decoradores',
+      'funcional',
+      'comprehensions',
+      'datetime',
+      'regex',
+      'context-managers',
+    ],
+    avanzado: [
+      'concurrencia',
+      'asyncio',
+      'type-hints',
+      'metaclases',
+      'descriptores',
+      'testing',
+      'dependencias',
+      'performance',
+    ],
+    'ai-engineering': [
+      'sql-python',
+      'apis-rest',
+      'fastapi',
+      'llms-openai',
+      'rag-systems',
+      'langchain',
+      'langgraph',
+      'mcp',
+      'n8n',
+      'prompt-engineering',
+      'deployment',
+    ],
+  },
+};
+
+function sortTopics(topics: any[], level: string, language: string) {
+  const order = topicOrder[language]?.[level] || [];
+  return [...topics].sort((a, b) => {
+    const slugA = a.slug.split('/').pop() || '';
+    const slugB = b.slug.split('/').pop() || '';
+    const indexA = order.indexOf(slugA);
+    const indexB = order.indexOf(slugB);
+    
+    // Si ambos están en el orden, ordenar por índice
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+    // Si solo A está en el orden, va primero
+    if (indexA !== -1) return -1;
+    // Si solo B está en el orden, va primero
+    if (indexB !== -1) return 1;
+    // Si ninguno está, orden alfabético
+    return slugA.localeCompare(slugB);
+  });
+}
+
 export default function LanguagePage({ params }: LanguagePageProps) {
   const { language } = params;
   const content = getAllContent(language);
   const info = languageInfo[language] || { name: language, icon: '📚', color: 'text-primary' };
   
-  // Agrupar por nivel
-  const basico = content.filter(c => c.level === 'basico');
-  const intermedio = content.filter(c => c.level === 'intermedio');
-  const avanzado = content.filter(c => c.level === 'avanzado');
+  // Agrupar y ordenar por nivel
+  const basico = sortTopics(content.filter(c => c.level === 'basico'), 'basico', language);
+  const intermedio = sortTopics(content.filter(c => c.level === 'intermedio'), 'intermedio', language);
+  const avanzado = sortTopics(content.filter(c => c.level === 'avanzado'), 'avanzado', language);
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -124,38 +238,56 @@ function ContentSection({
       </div>
       
       <div className="grid md:grid-cols-2 gap-4">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <Link 
             key={item.slug} 
             href={`/${language}/${item.slug}`}
-            className="block p-6 border border-border rounded-lg hover:shadow-lg hover:border-primary transition-all"
+            className="group block p-6 border border-border rounded-lg hover:shadow-lg hover:border-primary hover:scale-[1.02] transition-all duration-200"
           >
-            <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              {item.title}
-            </h3>
-            
-            {item.duration && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                <Clock className="w-4 h-4" />
-                {item.duration}
+            <div className="flex items-start gap-4">
+              {/* Número de orden */}
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                {index + 1}
               </div>
-            )}
-            
-            {item.tags && item.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-3">
-                {item.tags.slice(0, 3).map((tag: string) => (
-                  <span key={tag} className="text-xs px-2 py-1 bg-secondary rounded">
-                    {tag}
-                  </span>
-                ))}
-                {item.tags.length > 3 && (
-                  <span className="text-xs px-2 py-1 bg-secondary rounded">
-                    +{item.tags.length - 3}
-                  </span>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0" />
+                  <span className="truncate">{item.title}</span>
+                </h3>
+                
+                <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                  {item.duration && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {item.duration}
+                    </div>
+                  )}
+                  
+                  {item.category && (
+                    <div className="flex items-center gap-1">
+                      <Tag className="w-4 h-4" />
+                      {item.category}
+                    </div>
+                  )}
+                </div>
+                
+                {item.tags && item.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-3">
+                    {item.tags.slice(0, 4).map((tag: string) => (
+                      <span key={tag} className="text-xs px-2 py-1 bg-secondary rounded-full border border-border">
+                        {tag}
+                      </span>
+                    ))}
+                    {item.tags.length > 4 && (
+                      <span className="text-xs px-2 py-1 bg-secondary rounded-full border border-border">
+                        +{item.tags.length - 4}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+            </div>
           </Link>
         ))}
       </div>

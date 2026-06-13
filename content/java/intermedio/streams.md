@@ -280,6 +280,219 @@ Map<Integer, List<String>> porLongitud = stream
         .map(String::toUpperCase); // ❌ No hace nada sin operación terminal
    ```
 
+## ⚙️ Funcionamiento Interno de Streams
+
+### 🔍 ¿Cómo Funcionan los Streams Internamente?
+
+Los streams utilizan una arquitectura de **pipeline** con dos conceptos clave:
+
+#### 1️⃣ Evaluación Perezosa (Lazy Evaluation)
+
+Las operaciones intermedias **NO se ejecutan** hasta que hay una operación terminal.
+
+```java
+List<Integer> numeros = Arrays.asList(1, 2, 3, 4, 5);
+
+// Nada se ejecuta todavía
+Stream<Integer> stream = numeros.stream()
+    .filter(n -> {
+        System.out.println("Filtrando: " + n);
+        return n % 2 == 0;
+    })
+    .map(n -> {
+        System.out.println("Mapeando: " + n);
+        return n * 2;
+    });
+
+System.out.println("Stream creado, pero nada ejecutado aún");
+
+// AHORA se ejecuta todo
+List<Integer> resultado = stream.collect(Collectors.toList());
+```
+
+**Salida**:
+```
+Stream creado, pero nada ejecutado aún
+Filtrando: 1
+Filtrando: 2
+Mapeando: 2
+Filtrando: 3
+Filtrando: 4
+Mapeando: 4
+Filtrando: 5
+[4, 8]
+```
+
+**¿Por qué es importante?**
+- **Eficiencia**: Solo procesa lo necesario
+- **Short-circuiting**: Puede detenerse antes si encuentra lo que busca
+
+#### 2️⃣ Pipeline de Procesamiento
+
+Cada elemento pasa por **todas las operaciones** antes de procesar el siguiente.
+
+```java
+// NO funciona así (procesar todos con filter, luego todos con map):
+// ❌ [1,2,3,4,5] -> filter todos -> [2,4] -> map todos -> [4,8]
+
+// Funciona así (cada elemento atraviesa el pipeline completo):
+// ✅ 1 -> filter(NO) -> descartado
+//    2 -> filter(SÍ) -> map(4) -> collect
+//    3 -> filter(NO) -> descartado
+//    4 -> filter(SÍ) -> map(8) -> collect
+//    5 -> filter(NO) -> descartado
+```
+
+### 📊 Ejemplo de Pipeline Completo
+
+```java
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class StreamPipeline {
+    public static void main(String[] args) {
+        List<String> palabras = Arrays.asList("java", "python", "javascript", "go", "rust");
+        
+        List<String> resultado = palabras.stream()
+            // Operación intermedia 1
+            .filter(p -> {
+                System.out.println("1️⃣ Filter: " + p);
+                return p.length() > 3;
+            })
+            // Operación intermedia 2
+            .map(p -> {
+                System.out.println("2️⃣ Map: " + p);
+                return p.toUpperCase();
+            })
+            // Operación intermedia 3
+            .sorted((a, b) -> {
+                System.out.println("3️⃣ Sorted: comparando " + a + " con " + b);
+                return a.compareTo(b);
+            })
+            // Operación terminal
+            .collect(Collectors.toList());
+        
+        System.out.println("\n✅ Resultado: " + resultado);
+    }
+}
+```
+
+**Salida**:
+```
+1️⃣ Filter: java
+2️⃣ Map: java
+1️⃣ Filter: python
+2️⃣ Map: python
+1️⃣ Filter: javascript
+2️⃣ Map: javascript
+1️⃣ Filter: go
+1️⃣ Filter: rust
+2️⃣ Map: rust
+3️⃣ Sorted: comparando PYTHON con JAVA
+3️⃣ Sorted: comparando JAVASCRIPT con JAVA
+3️⃣ Sorted: comparando JAVASCRIPT con PYTHON
+3️⃣ Sorted: comparando RUST con PYTHON
+
+✅ Resultado: [JAVA, JAVASCRIPT, PYTHON, RUST]
+```
+
+### ⚡ Short-Circuit Operations
+
+Operaciones que pueden detenerse antes de procesar todos los elementos:
+
+```java
+List<Integer> numeros = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+// findFirst se detiene en el primer match
+Optional<Integer> primero = numeros.stream()
+    .filter(n -> {
+        System.out.println("Verificando: " + n);
+        return n > 5;
+    })
+    .findFirst();
+
+System.out.println("Encontrado: " + primero.get());
+```
+
+**Salida**:
+```
+Verificando: 1
+Verificando: 2
+Verificando: 3
+Verificando: 4
+Verificando: 5
+Verificando: 6
+Encontrado: 6
+```
+
+Solo verifica hasta encontrar el primero que cumple. **No procesa 7, 8, 9, 10**.
+
+### 🔄 Diferencia: Operaciones Intermedias vs Terminales
+
+```java
+// Operaciones INTERMEDIAS (lazy - retornan Stream)
+stream.filter(...)    // Retorna Stream<T>
+      .map(...)       // Retorna Stream<R>
+      .sorted()       // Retorna Stream<T>
+      .distinct()     // Retorna Stream<T>
+      .limit(5)       // Retorna Stream<T>
+
+// Operaciones TERMINALES (eager - ejecutan pipeline)
+stream.collect(...)   // Retorna Collection
+      .forEach(...)   // Retorna void
+      .count()        // Retorna long
+      .reduce(...)    // Retorna Optional<T> o T
+      .findFirst()    // Retorna Optional<T>
+```
+
+### 🎯 Ejemplo: Diferencia de Rendimiento
+
+```java
+import java.util.stream.IntStream;
+
+public class StreamPerformance {
+    public static void main(String[] args) {
+        // Procesar 1 millón de números
+        long inicio = System.currentTimeMillis();
+        
+        // Con streams y short-circuit
+        boolean existeMayorQue50 = IntStream.range(1, 1_000_000)
+            .anyMatch(n -> n > 50);
+        
+        long fin = System.currentTimeMillis();
+        System.out.println("Tiempo: " + (fin - inicio) + " ms");
+        System.out.println("Existe: " + existeMayorQue50);
+        
+        // ⚡ anyMatch se detiene en el primer match (n=51)
+        // NO procesa los 999,949 números restantes
+    }
+}
+```
+
+### 🧠 Conceptos Clave
+
+| Concepto | Explicación |
+|----------|-------------|
+| **Lazy Evaluation** | Operaciones intermedias no se ejecutan hasta que hay una terminal |
+| **Pipeline** | Cada elemento atraviesa todas las operaciones secuencialmente |
+| **Short-circuit** | `findFirst()`, `anyMatch()`, `limit()` pueden detenerse antes |
+| **Stateless** | `filter()`, `map()` no mantienen estado entre elementos |
+| **Stateful** | `sorted()`, `distinct()` necesitan ver todos los elementos |
+
+### 🎯 ¿Cuándo Usar Streams vs Loops?
+
+**Usa Streams cuando:**
+✅ Necesitas operaciones de alto nivel (filter, map, reduce)  
+✅ Trabajas con colecciones grandes  
+✅ Quieres código más legible y declarativo  
+✅ Necesitas paralelización fácil (`.parallelStream()`)
+
+**Usa Loops cuando:**
+✅ Lógica compleja con múltiples condiciones  
+✅ Necesitas break/continue avanzado  
+✅ Modificas variables externas (side effects)  
+✅ El rendimiento es crítico en operaciones simples
+
 ## 💪 Ejercicios Prácticos
 
 ### Ejercicio 1: Filtrar y Contar

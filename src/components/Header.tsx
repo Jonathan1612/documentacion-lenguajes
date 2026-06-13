@@ -18,9 +18,9 @@ export function Header() {
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">D</span>
+              <span className="text-white font-bold text-lg">J</span>
             </div>
-            <span className="font-bold text-xl">DevDocs</span>
+            <span className="font-bold text-xl">JACM Docs</span>
           </Link>
           
           <nav className="hidden md:flex gap-6">

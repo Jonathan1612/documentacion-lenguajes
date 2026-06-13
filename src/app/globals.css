@@ -54,13 +54,170 @@
   }
 }
 
-/* Code highlighting custom styles */
+/* ========================================
+   MARKDOWN ENHANCED STYLES
+   ======================================== */
+
+/* Code Blocks */
+.code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden border border-border bg-secondary/30;
+}
+
+.code-block-header {
+  @apply px-4 py-2 bg-secondary border-b border-border flex items-center justify-between;
+}
+
+.code-language {
+  @apply text-xs font-mono font-semibold text-muted-foreground uppercase;
+}
+
 pre[class*="language-"] {
-  @apply rounded-lg p-4 overflow-x-auto my-4;
+  @apply p-4 overflow-x-auto m-0 bg-transparent;
 }
 
 code[class*="language-"] {
-  @apply text-sm;
+  @apply text-sm font-mono;
+}
+
+.inline-code {
+  @apply px-1.5 py-0.5 rounded bg-secondary text-primary font-mono text-sm border border-border;
+}
+
+/* Headings */
+.markdown-heading {
+  @apply relative;
+}
+
+.heading-anchor {
+  @apply absolute -left-6 opacity-0 transition-opacity text-primary no-underline;
+}
+
+.markdown-heading:hover .heading-anchor {
+  @apply opacity-100;
+}
+
+/* Tables */
+.table-wrapper {
+  @apply my-6 overflow-x-auto;
+}
+
+.markdown-table {
+  @apply w-full border-collapse;
+}
+
+.markdown-table th {
+  @apply bg-secondary px-4 py-3 text-left font-semibold border border-border;
+}
+
+.markdown-table td {
+  @apply px-4 py-3 border border-border;
+}
+
+.markdown-table tbody tr:hover {
+  @apply bg-secondary/50;
+}
+
+/* Alerts / Callouts */
+.markdown-alert {
+  @apply my-6 p-4 rounded-lg border-l-4;
+}
+
+.alert-title {
+  @apply font-semibold mb-2 flex items-center gap-2;
+}
+
+.alert-info {
+  @apply bg-blue-50 border-blue-500 dark:bg-blue-950/30;
+}
+
+.alert-info .alert-title {
+  @apply text-blue-700 dark:text-blue-400;
+}
+
+.alert-warning {
+  @apply bg-yellow-50 border-yellow-500 dark:bg-yellow-950/30;
+}
+
+.alert-warning .alert-title {
+  @apply text-yellow-700 dark:text-yellow-400;
+}
+
+.alert-danger {
+  @apply bg-red-50 border-red-500 dark:bg-red-950/30;
+}
+
+.alert-danger .alert-title {
+  @apply text-red-700 dark:text-red-400;
+}
+
+.alert-success {
+  @apply bg-green-50 border-green-500 dark:bg-green-950/30;
+}
+
+.alert-success .alert-title {
+  @apply text-green-700 dark:text-green-400;
+}
+
+.alert-important {
+  @apply bg-purple-50 border-purple-500 dark:bg-purple-950/30;
+}
+
+.alert-important .alert-title {
+  @apply text-purple-700 dark:text-purple-400;
+}
+
+/* Blockquotes */
+.markdown-blockquote {
+  @apply border-l-4 border-border pl-4 py-2 my-4 italic text-muted-foreground;
+}
+
+/* Lists */
+.markdown-list {
+  @apply my-4 space-y-2;
+}
+
+.markdown-list li {
+  @apply leading-relaxed;
+}
+
+.markdown-list ul {
+  @apply list-disc ml-6;
+}
+
+.markdown-list ol {
+  @apply list-decimal ml-6;
+}
+
+/* Links */
+.markdown-link {
+  @apply text-primary hover:underline font-medium inline-flex items-center gap-1;
+}
+
+.external-link-icon {
+  @apply text-xs opacity-70;
+}
+
+/* Horizontal Rule */
+hr {
+  @apply my-8 border-border;
+}
+
+/* Images */
+img {
+  @apply rounded-lg my-6 max-w-full h-auto;
+}
+
+/* Details/Summary (para ejercicios plegables) */
+details {
+  @apply my-4 p-4 border border-border rounded-lg bg-secondary/30;
+}
+
+summary {
+  @apply cursor-pointer font-semibold text-primary hover:text-primary/80 transition-colors;
+}
+
+details[open] summary {
+  @apply mb-4 pb-4 border-b border-border;
 }
 
 /* Scrollbar styles */

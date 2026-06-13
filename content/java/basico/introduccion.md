@@ -88,18 +88,28 @@ public class MiPrograma {
 
 ## ⚠️ Errores Comunes
 
-1. **El nombre del archivo no coincide con la clase**
-   - ❌ `programa.java` con `public class HolaMundo`
-   - ✅ `HolaMundo.java` con `public class HolaMundo`
+> ⚠️ **Advertencia**: El nombre del archivo debe coincidir exactamente con el nombre de la clase pública. Java es estricto con esto.
 
-2. **Olvidar el punto y coma**
-   ```java
-   System.out.println("Hola")  // ❌ Error de compilación
-   System.out.println("Hola"); // ✅ Correcto
-   ```
+**Errores típicos de principiantes:**
 
-3. **Errores de mayúsculas/minúsculas**
-   - Java es case-sensitive: `String` ≠ `string`
+| Error | Incorrecto | Correcto |
+|-------|-----------|----------|
+| Nombre de archivo | `programa.java` con `public class HolaMundo` | `HolaMundo.java` con `public class HolaMundo` |
+| Punto y coma | `System.out.println("Hola")` | `System.out.println("Hola");` |
+| Case-sensitive | `string texto` | `String texto` |
+| Método main | `public void main()` | `public static void main(String[] args)` |
+
+> ✅ **Consejo**: Usa un IDE como IntelliJ IDEA o Eclipse que detecte estos errores automáticamente.
+
+> 💡 **Importante**: Java es case-sensitive, lo que significa que `String` y `string` son completamente diferentes.
+
+## 📊 Comparación de Herramientas
+
+| Herramienta | Descripción | Cuándo usar |
+|-------------|-------------|-------------|
+| **JDK** | Kit completo de desarrollo | Para desarrollar aplicaciones |
+| **JRE** | Solo entorno de ejecución | Para ejecutar aplicaciones ya compiladas |
+| **JVM** | Máquina virtual | Incluida en JDK y JRE |
 
 ## 💪 Ejercicios Prácticos
 

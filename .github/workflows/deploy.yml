@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    uses: Jonathan1612/container-apps/.github/workflows/deploy-app.yml@dev
+    with:
+      app_name: documentacion-lenguajes
+      frontend_domain: docs.jacm.com.mx
+      branch: main
+    secrets: inherit
